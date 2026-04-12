@@ -1,0 +1,15 @@
+pandas
+numpy
+scikit-learn
+nltk
+spacy
+transformers
+torch
+datasets
+accelerate
+scipy
+matplotlib
+seaborn
+requests
+huggingface-hub
+fsspec

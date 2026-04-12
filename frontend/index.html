@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cine-NLP — Real-Time AI Intelligence</title>
+    <meta name="description" content="A dynamic NLP platform for sentiment analysis, abstractive summarization, spell correction, and trigram language modeling — built for cinematic text intelligence.">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Grain Overlay -->
+    <div class="grain-overlay" aria-hidden="true"></div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- NAVIGATION -->
+    <!-- ═══════════════════════════════════════════ -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-inner">
+            <a href="#" class="nav-logo">
+                <span class="logo-icon">⚡</span>
+                <span class="logo-text">Cine<span class="logo-accent">NLP</span></span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="#features">Features</a></li>
+                <li><a href="#summarizer">Summarizer</a></li>
+                <li><a href="#movie-search">Movie Search</a></li>
+                <li><a href="#pipeline">Pipeline</a></li>
+                <li><a href="#how-it-works">How It Works</a></li>
+                <li><a href="#faq">FAQ</a></li>
+            </ul>
+            <a href="#pipeline" class="nav-cta">Try Now</a>
+            <button class="nav-hamburger" id="nav-hamburger" aria-label="Toggle menu">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+        <!-- Mobile menu -->
+        <div class="mobile-menu" id="mobile-menu">
+            <ul>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#pipeline">Pipeline</a></li>
+                <li><a href="#how-it-works">How It Works</a></li>
+                <li><a href="#faq">FAQ</a></li>
+                <li><a href="#pipeline" class="nav-cta">Try Now</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- HERO SECTION -->
+    <!-- ═══════════════════════════════════════════ -->
+    <header class="hero" id="hero">
+        <div class="hero-bg-shapes" aria-hidden="true">
+            <div class="hero-circle hero-circle-1"></div>
+            <div class="hero-circle hero-circle-2"></div>
+            <div class="hero-circle hero-circle-3"></div>
+        </div>
+        <div class="hero-inner">
+            <div class="hero-badge animate-on-scroll">
+                <span class="badge-dot"></span>
+                AI-Powered &middot; Real-Time Analysis &middot; 2026
+            </div>
+            <h1 class="hero-title animate-on-scroll">
+                Decode Emotion.<br>
+                <span class="hero-title-accent">Rewrite Language.</span>
+            </h1>
+            <p class="hero-subtitle animate-on-scroll">
+                A cinematic NLP platform that analyzes sentiment, corrects spelling with Levenshtein distance,
+                generates abstractive summaries, and predicts language patterns — all in real time.
+            </p>
+            <div class="hero-actions animate-on-scroll">
+                <a href="#pipeline" class="btn btn-primary">
+                    <span class="btn-icon">🚀</span> Launch Pipeline
+                </a>
+                <a href="#features" class="btn btn-ghost">
+                    <span class="btn-icon">✦</span> Explore Features
+                </a>
+            </div>
+            <div class="hero-stats animate-on-scroll">
+                <div class="hero-stat">
+                    <span class="hero-stat-number">6</span>
+                    <span class="hero-stat-label">NLP Stages</span>
+                </div>
+                <div class="hero-stat-divider"></div>
+                <div class="hero-stat">
+                    <span class="hero-stat-number">VADER</span>
+                    <span class="hero-stat-label">Sentiment Engine</span>
+                </div>
+                <div class="hero-stat-divider"></div>
+                <div class="hero-stat">
+                    <span class="hero-stat-number">BART</span>
+                    <span class="hero-stat-label">Summarization</span>
+                </div>
+                <div class="hero-stat-divider"></div>
+                <div class="hero-stat">
+                    <span class="hero-stat-number">spaCy</span>
+                    <span class="hero-stat-label">Lemmatization</span>
+                </div>
+            </div>
+        </div>
+        <div class="hero-scroll-indicator animate-on-scroll">
+            <div class="scroll-line"></div>
+            <span>Scroll to explore</span>
+        </div>
+    </header>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- TRUSTED BY / TECH LOGOS -->
+    <!-- ═══════════════════════════════════════════ -->
+    <section class="tech-strip">
+        <div class="tech-strip-inner">
+            <span class="tech-strip-label">BUILT WITH INDUSTRY-LEADING FRAMEWORKS</span>
+            <div class="tech-logos">
+                <div class="tech-logo-item"><span class="tech-logo-icon">🔥</span> PyTorch</div>
+                <div class="tech-logo-item"><span class="tech-logo-icon">🤗</span> HuggingFace</div>
+                <div class="tech-logo-item"><span class="tech-logo-icon">🧠</span> spaCy</div>
+                <div class="tech-logo-item"><span class="tech-logo-icon">📊</span> NLTK</div>
+                <div class="tech-logo-item"><span class="tech-logo-icon">🐍</span> Flask</div>
+                <div class="tech-logo-item"><span class="tech-logo-icon">⚡</span> BART-CNN</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- MOVIE SEARCH SECTION -->
+    <!-- ═══════════════════════════════════════════ -->
+    <section class="movie-search-section" id="movie-search">
+        <div class="section-inner">
+            <div class="section-header animate-on-scroll">
+                <span class="section-tag">Movie Insights</span>
+                <h2 class="section-title">Fetch <em>Cinematic Plots</em></h2>
+                <p class="section-desc">Search for any movie to fetch its official plot summary directly from TMDB and analyze it instantly.</p>
+            </div>
+
+            <div class="movie-search-container animate-on-scroll">
+                <div class="movie-search-box">
+                    <input type="password" id="tmdb-api-key" placeholder="Enter TMDB API Key (Optional)..." class="movie-input">
+                        <div class="search-input-wrap">
+                            <input type="text" id="movie-query" placeholder="Search a movie (e.g. Inception)..." class="movie-input">
+                            <button id="btn-search-movie" class="btn btn-primary">
+                                <span class="search-btn-text">Search</span>
+                                <span class="search-btn-loader" style="display: none;"><span class="spinner-tiny"></span></span>
+                            </button>
+                        </div>
+                </div>
+                
+                <div id="movie-results" class="movie-results-grid" style="display: none;"></div>
+                
+                <div id="movie-selection-detail" class="movie-detail-card" style="display: none;">
+                    <div class="movie-detail-content">
+                        <div class="movie-detail-info">
+                            <h3 id="movie-detail-title"></h3>
+                            <div class="movie-meta">
+                                <span id="movie-detail-year"></span> &bull; 
+                                <span id="movie-detail-rating"></span>/10 &bull; 
+                                <span id="movie-detail-genre"></span>
+                            </div>
+                            <p id="movie-detail-plot"></p>
+                            <button id="btn-analyze-plot" class="btn btn-primary">Analyze This Plot</button>
+                        </div>
+                        <img id="movie-detail-poster" src="" alt="Poster" class="movie-poster">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- FEATURES SECTION -->
+    <!-- ═══════════════════════════════════════════ -->
+    <section class="features" id="features">
+        <div class="section-inner">
+            <div class="section-header animate-on-scroll">
+                <span class="section-tag">Capabilities</span>
+                <h2 class="section-title">Six Stages of<br><em>Linguistic Intelligence</em></h2>
+                <p class="section-desc">Every piece of text passes through a meticulously engineered pipeline — from raw input to deep insight.</p>
+            </div>
+
+            <!-- Highlighted Feature 1 (Full Width) -->
+            <div class="feature-card feature-card-hero animate-on-scroll" id="feature-hero">
+                <div class="feature-card-content">
+                    <span class="feature-number">01</span>
+                    <h3>Sentiment Analysis</h3>
+                    <p>VADER lexicon maps every English word to an emotional polarity score. Words like <code>good</code> score +1.9, while <code>terrible</code> scores −2.1. The compound aggregate determines an overall emotional direction — positive, negative, or neutral.</p>
+                    <div class="feature-tags">
+                        <span class="feature-tag">VADER Lexicon</span>
+                        <span class="feature-tag">Compound Score</span>
+                        <span class="feature-tag">Real-Time</span>
+                    </div>
+                </div>
+                <div class="feature-card-visual">
+                    <div class="sentiment-demo">
+                        <div class="sentiment-bar">
+                            <div class="sentiment-fill sentiment-positive" style="width: 72%;">
+                                <span>Positive 72%</span>
+                            </div>
+                        </div>
+                        <div class="sentiment-bar">
+                            <div class="sentiment-fill sentiment-neutral" style="width: 18%;">
+                                <span>Neutral 18%</span>
+                            </div>
+                        </div>
+                        <div class="sentiment-bar">
+                            <div class="sentiment-fill sentiment-negative" style="width: 10%;">
+                                <span>Neg 10%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feature Grid (2 columns) -->
+            <div class="feature-grid">
+                <div class="feature-card animate-on-scroll">
+                    <span class="feature-number">02</span>
+                    <h3>Abstractive Summarization</h3>
+                    <p>Facebook's BART-Large-CNN generates entirely new sentences that capture the core meaning — not just extracting original lines.</p>
+                    <div class="feature-tags">
+                        <span class="feature-tag">BART-Large-CNN</span>
+                        <span class="feature-tag">Neural</span>
+                    </div>
+                </div>
+                <div class="feature-card animate-on-scroll">
+                    <span class="feature-number">03</span>
+                    <h3>Levenshtein Spell Correction</h3>
+                    <p>Custom minimum-edit-distance algorithm built from scratch. Computes optimal character alignments against 230k+ English words.</p>
+                    <div class="feature-tags">
+                        <span class="feature-tag">Edit Distance</span>
+                        <span class="feature-tag">Dynamic Programming</span>
+                    </div>
+                </div>
+                <div class="feature-card animate-on-scroll">
+                    <span class="feature-number">04</span>
+                    <h3>Text Preprocessing</h3>
+                    <p>Multi-stage pipeline: lowercasing, punctuation removal, NLTK tokenization, stopword filtering, and spaCy lemmatization.</p>
+                    <div class="feature-tags">
+                        <span class="feature-tag">spaCy</span>
+                        <span class="feature-tag">NLTK</span>
+                    </div>
+                </div>
+                <div class="feature-card animate-on-scroll">
+                    <span class="feature-number">05</span>
+                    <h3>Trigram Language Model</h3>
+                    <p>Learns word sequence patterns with Laplace-smoothed conditional probabilities P(w₃|w₁,w₂) to predict what comes next.</p>
+                    <div class="feature-tags">
+                        <span class="feature-tag">N-Gram</span>
+                        <span class="feature-tag">Laplace Smoothing</span>
+                    </div>
+                </div>
+                <div class="feature-card animate-on-scroll">
+                    <span class="feature-number">06</span>
+                    <h3>Perplexity Evaluation</h3>
+                    <p>Measures how "surprised" the model is by your text. Lower scores = more natural, fluent English.</p>
+                    <div class="feature-tags">
+                        <span class="feature-tag">Cross-Entropy</span>
+                        <span class="feature-tag">Log Probability</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- STANDALONE SUMMARIZER -->
+    <!-- ═══════════════════════════════════════════ -->
+    <section class="summarizer-section" id="summarizer">
+        <div class="section-inner">
+            <div class="section-header animate-on-scroll">
+                <span class="section-tag">Quick Tool</span>
+                <h2 class="section-title">Instant <em>Summarizer</em></h2>
+                <p class="section-desc">Paste any long-form text and get a concise, AI-generated abstractive summary powered by BART-Large-CNN — no full pipeline needed.</p>
+            </div>
+
+            <div class="summarizer-workspace animate-on-scroll">
+                <div class="summarizer-input-area">
+                    <div class="input-header">
+                        <div class="input-header-left">
+                            <div class="input-dot red"></div>
+                            <div class="input-dot yellow"></div>
+                            <div class="input-dot green"></div>
+                            <span class="input-filename">document.txt</span>
+                        </div>
+                        <div class="input-actions">
+                            <button class="btn-small btn-demo" id="btn-summarizer-demo">✨ Load Sample</button>
+                            <button class="btn-small btn-clear" id="btn-summarizer-clear">✕ Clear</button>
+                        </div>
+                    </div>
+                    <textarea id="summarizer-input" placeholder="Paste a long article, essay, movie plot, or any text you want to summarize..." rows="8"></textarea>
+                </div>
+
+                <button class="btn-run" id="btn-summarize">
+                    <span class="btn-summarize-default">
+                        <span class="btn-run-icon">✂️</span>
+                        Generate Summary
+                    </span>
+                    <span class="btn-summarize-loading" style="display:none;">
+                        <span class="spinner"></span>
+                        Summarizing...
+                    </span>
+                </button>
+
+                <!-- Summary Output -->
+                <div class="summarizer-output" id="summarizer-output" style="display: none;">
+                    <div class="summary-stats-bar">
+                        <div class="summary-stat">
+                            <span class="summary-stat-label">Original</span>
+                            <span class="summary-stat-value" id="stat-original-words">—</span>
+                            <span class="summary-stat-unit">words</span>
+                        </div>
+                        <div class="summary-stat-arrow">→</div>
+                        <div class="summary-stat">
+                            <span class="summary-stat-label">Summary</span>
+                            <span class="summary-stat-value" id="stat-summary-words">—</span>
+                            <span class="summary-stat-unit">words</span>
+                        </div>
+                        <div class="summary-stat-arrow">≈</div>
+                        <div class="summary-stat highlight">
+                            <span class="summary-stat-label">Compression</span>
+                            <span class="summary-stat-value" id="stat-compression">—</span>
+                            <span class="summary-stat-unit">% reduced</span>
+                        </div>
+                    </div>
+                    <div class="summary-output-card">
+                        <div class="result-card-header">
+                            <div class="result-card-header-left">
+                                <span class="result-card-icon">📝</span>
+                                <h3>AI-Generated Summary</h3>
+                            </div>
+                            <button class="btn-icon-only" id="btn-copy-standalone-summary" title="Copy summary">📋</button>
+                        </div>
+                        <p class="summary-text" id="standalone-summary-text">—</p>
+                        <p class="result-explain">
+                            Generated using Facebook BART-Large-CNN — a sequence-to-sequence transformer model that performs abstractive summarization by reading and rewriting the core meaning.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- PIPELINE (Interactive) -->
+    <!-- ═══════════════════════════════════════════ -->
+    <section class="pipeline-section" id="pipeline">
+        <div class="section-inner">
+            <div class="section-header animate-on-scroll">
+                <span class="section-tag">Live Demo</span>
+                <h2 class="section-title">Experience the <em>Pipeline</em></h2>
+                <p class="section-desc">Paste any text — a movie review, an essay, a random thought — and watch the AI dissect it in real time.</p>
+            </div>
+
+            <div class="pipeline-workspace animate-on-scroll">
+                <!-- Input Area -->
+                <div class="pipeline-input-area">
+                    <div class="input-header">
+                        <div class="input-header-left">
+                            <div class="input-dot red"></div>
+                            <div class="input-dot yellow"></div>
+                            <div class="input-dot green"></div>
+                            <span class="input-filename">input.txt</span>
+                        </div>
+                        <div class="input-actions">
+                            <button class="btn-small btn-demo" id="btn-demo">✨ Load Demo</button>
+                            <button class="btn-small btn-clear" id="btn-clear">✕ Clear</button>
+                        </div>
+                    </div>
+                    <textarea id="pipeline-input" placeholder="Type or paste your text here... Try a movie review, a paragraph from an article, or anything you'd like analyzed." rows="7"></textarea>
+                    
+                    <!-- Live Sentiment Indicator -->
+                    <div class="live-sentiment" id="live-sentiment">
+                        <div class="live-sentiment-dot" id="sentiment-dot"></div>
+                        <span id="sentiment-label">Waiting for input...</span>
+                    </div>
+                </div>
+
+                <!-- Run Button -->
+                <button class="btn-run" id="btn-run">
+                    <span class="btn-run-default">
+                        <span class="btn-run-icon">⚡</span>
+                        Run Full AI Pipeline
+                    </span>
+                    <span class="btn-run-loading" style="display:none;">
+                        <span class="spinner"></span>
+                        Processing...
+                    </span>
+                </button>
+
+                <!-- Pipeline Progress -->
+                <div class="pipeline-progress" id="pipeline-progress" style="display:none;">
+                    <div class="progress-step" data-step="1">
+                        <div class="progress-step-icon">🧹</div>
+                        <span>Cleaning & Normalizing</span>
+                        <div class="progress-check">✓</div>
+                    </div>
+                    <div class="progress-step" data-step="2">
+                        <div class="progress-step-icon">⚙️</div>
+                        <span>Tokenizing & Lemmatizing</span>
+                        <div class="progress-check">✓</div>
+                    </div>
+                    <div class="progress-step" data-step="3">
+                        <div class="progress-step-icon">📝</div>
+                        <span>Spell Correction (Levenshtein)</span>
+                        <div class="progress-check">✓</div>
+                    </div>
+                    <div class="progress-step" data-step="4">
+                        <div class="progress-step-icon">🎭</div>
+                        <span>Sentiment Analysis (VADER)</span>
+                        <div class="progress-check">✓</div>
+                    </div>
+                    <div class="progress-step" data-step="5">
+                        <div class="progress-step-icon">✂️</div>
+                        <span>Abstractive Summarization (BART)</span>
+                        <div class="progress-check">✓</div>
+                    </div>
+                    <div class="progress-step" data-step="6">
+                        <div class="progress-step-icon">🧠</div>
+                        <span>N-Gram Model & Perplexity</span>
+                        <div class="progress-check">✓</div>
+                    </div>
+                </div>
+
+                <!-- Results Area -->
+                <div class="results-area" id="results-area" style="display:none;">
+                    
+                    <!-- Before / After -->
+                    <div class="results-transform">
+                        <h3 class="results-section-title">🔄 Transformation Preview</h3>
+                        <div class="transform-grid">
+                            <div class="transform-card transform-before">
+                                <span class="transform-label">Original Input</span>
+                                <p id="result-original"></p>
+                            </div>
+                            <div class="transform-arrow">→</div>
+                            <div class="transform-card transform-after">
+                                <span class="transform-label">Cleaned & Corrected</span>
+                                <p id="result-corrected"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sentiment + Summary Cards -->
+                    <div class="results-duo-grid">
+                        <div class="result-card result-sentiment" id="result-sentiment-card">
+                            <div class="result-card-header">
+                                <div class="result-card-header-left">
+                                    <span class="result-card-icon">🎭</span>
+                                    <h3>Sentiment Analysis</h3>
+                                </div>
+                            </div>
+                            <div class="sentiment-result" id="sentiment-result">
+                                <span class="sentiment-emoji" id="sentiment-emoji">⚪</span>
+                                <span class="sentiment-value" id="sentiment-value">—</span>
+                            </div>
+                            <p class="result-explain">
+                                Powered by VADER lexicon — maps words to polarity scores and computes a compound aggregate between −1.0 and +1.0.
+                            </p>
+                        </div>
+                        <div class="result-card result-summary">
+                            <div class="result-card-header">
+                                <div class="result-card-header-left">
+                                    <span class="result-card-icon">✂️</span>
+                                    <h3>Executive Summary</h3>
+                                </div>
+                                <button class="btn-icon-only" id="btn-copy-summary" title="Copy to clipboard">📋</button>
+                            </div>
+                            <p class="summary-text" id="result-summary">—</p>
+                            <p class="result-explain">
+                                Facebook BART-Large-CNN generates new, shorter sentences capturing only the core abstract meaning of your input.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Predictions + Perplexity -->
+                    <div class="results-duo-grid">
+                        <div class="result-card result-predictions">
+                            <div class="result-card-header">
+                                <div class="result-card-header-left">
+                                    <span class="result-card-icon">🧠</span>
+                                    <h3>Trigram Predictions</h3>
+                                </div>
+                            </div>
+                            <p class="prediction-context" id="prediction-context"></p>
+                            <div class="predictions-list" id="predictions-list"></div>
+                            <p class="result-explain">
+                                The N-Gram model learns structural word sequences and computes conditional probability P(w₃|w₁,w₂) to predict the next word.
+                            </p>
+                        </div>
+                        <div class="result-card result-perplexity">
+                            <div class="result-card-header">
+                                <div class="result-card-header-left">
+                                    <span class="result-card-icon">📊</span>
+                                    <h3>Model Perplexity</h3>
+                                </div>
+                            </div>
+                            <div class="perplexity-display">
+                                <span class="perplexity-number" id="perplexity-value">—</span>
+                                <span class="perplexity-label">Fluency Score</span>
+                                <span class="perplexity-hint">↓ Lower is better</span>
+                            </div>
+                            <p class="result-explain">
+                                Measures how "surprised" the AI is by your text. Low = natural, structured English. High = unusual grammar or rare word combinations.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- HOW IT WORKS -->
+    <!-- ═══════════════════════════════════════════ -->
+    <section class="how-it-works" id="how-it-works">
+        <div class="section-inner">
+            <div class="section-header animate-on-scroll">
+                <span class="section-tag">Methodology</span>
+                <h2 class="section-title">Technical <em>Workflow</em></h2>
+                <p class="section-desc">Inside the academic architecture of Cine-NLP's linguistic processing engine.</p>
+            </div>
+            <div class="how-grid">
+                <div class="why-card animate-on-scroll">
+                    <div class="why-icon">📥</div>
+                    <h4>Input Ingestion</h4>
+                    <p>Strings are received via Flask REST endpoints and passed into a multi-threaded pre-processing module for normalization.</p>
+                </div>
+                <div class="why-card animate-on-scroll">
+                    <div class="why-icon">🔍</div>
+                    <h4>Algorithmic Processing</h4>
+                    <p>Classical algorithms like Levenshtein distance are computed via dynamic programming, while VADER performs lexicographical analysis.</p>
+                </div>
+                <div class="why-card animate-on-scroll">
+                    <div class="why-icon">🤖</div>
+                    <h4>Neural Synthesis</h4>
+                    <p>The system utilizes pre-trained Large Language Models (BART) to perform abstractive logic and generate semantic summaries.</p>
+                </div>
+                <div class="why-card animate-on-scroll">
+                    <div class="why-icon">📈</div>
+                    <h4>Mathematical Evaluation</h4>
+                    <p>Final results are mathematically validated using Perplexity metrics to evaluate the fluency of the generated insights.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- FAQ SECTION -->
+    <!-- ═══════════════════════════════════════════ -->
+    <section class="faq-section" id="faq">
+        <div class="section-inner">
+            <div class="section-header animate-on-scroll">
+                <span class="section-tag">Questions</span>
+                <h2 class="section-title">Frequently <em>Asked</em></h2>
+            </div>
+            <div class="faq-list animate-on-scroll">
+                <div class="faq-item">
+                    <button class="faq-question" aria-expanded="false">
+                        <span>How does the sentiment analysis actually work?</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <p>We use NLTK's VADER (Valence Aware Dictionary for sEntiment Reasoning) lexicon. Every English word is mapped to a polarity score — for example, "amazing" → +1.9, "terrible" → −2.5. VADER then computes a compound score between −1.0 and +1.0, which determines the overall sentiment classification: <strong>Positive</strong> (≥0.05), <strong>Negative</strong> (≤−0.05), or <strong>Neutral</strong>.</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question" aria-expanded="false">
+                        <span>What makes the summarization "abstractive"?</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Unlike extractive summarizers that simply copy sentences from the source, our BART-Large-CNN model physically <em>reads</em> your text and generates entirely new sentences that distill the core meaning. It's the difference between highlighting existing text vs. writing a new paragraph from understanding.</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question" aria-expanded="false">
+                        <span>How is the spell correction different from autocorrect?</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Our spell corrector uses a custom-built Levenshtein distance algorithm (dynamic programming) to compute the minimum edit distance between your word and every candidate in a 230k+ English dictionary. It finds the closest real word by measuring the fewest insertions, deletions, and substitutions needed — no statistical shortcuts.</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question" aria-expanded="false">
+                        <span>What does the "perplexity" score mean?</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Perplexity measures how "surprised" the language model is by your text. Think of it as a fluency meter: a <strong>low score</strong> means your text flows naturally with predictable word sequences, while a <strong>high score</strong> indicates unusual grammar, rare vocabulary, or unexpected word combinations. It's computed as 2^(−average log₂ probability).</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- CTA SECTION -->
+    <!-- ═══════════════════════════════════════════ -->
+    <section class="cta-section">
+        <div class="section-inner">
+            <div class="cta-card animate-on-scroll">
+                <h2 class="cta-title">Ready to decode your text?</h2>
+                <p class="cta-desc">Drop in any sentence, review, or narrative and let six stages of linguistic intelligence reveal what's hidden inside.</p>
+                <div class="cta-actions">
+                    <a href="#pipeline" class="btn btn-primary btn-large">
+                        <span class="btn-icon">⚡</span> Launch Pipeline
+                    </a>
+                    <a href="https://github.com/Sanjay2408/Cine-NLP" target="_blank" class="btn btn-ghost btn-large">
+                        <span class="btn-icon">⭐</span> Star on GitHub
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- FOOTER -->
+    <!-- ═══════════════════════════════════════════ -->
+    <footer class="footer">
+        <div class="footer-inner">
+            <div class="footer-left">
+                <span class="footer-logo">⚡ Cine<span class="logo-accent">NLP</span></span>
+                <p>&copy; 2026 Cine-NLP. All Rights Reserved.</p>
+            </div>
+            <div class="footer-links">
+                <a href="https://github.com/Sanjay2408/Cine-NLP" target="_blank">GitHub</a>
+                <a href="#features">Features</a>
+                <a href="#how-it-works">How It Works</a>
+                <a href="#faq">FAQ</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
