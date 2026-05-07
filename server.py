@@ -6,6 +6,7 @@ from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 import os
 import traceback
+import tempfile
 
 # Import existing NLP modules
 from preprocessing import clean_and_normalize, preprocess_text
@@ -15,6 +16,7 @@ from sentiment import analyze_sentiment
 from ngram_model import TrigramModel
 from evaluation import compute_perplexity
 from src.api_integration import TMDBAPI
+from voice_integration import speech_to_text, text_to_speech
 
 app = Flask(__name__, static_folder=None)
 CORS(app)
@@ -47,8 +49,30 @@ def run_pipeline():
         # Step 4: Sentiment Analysis
         sentiment = analyze_sentiment(text)
 
-        # Step 5: Summarization
-        summary = generate_summary(text)
+        # Step 5: Summarization (with robust fallback)
+        summary = "Unable to generate summary"
+        try:
+            summary = generate_summary(text)
+        except Exception as gen_err:
+            print(f"[WARN] generate_summary failed: {gen_err}")
+            # Try direct model generation as fallback
+            try:
+                from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+                tokenizer = AutoTokenizer.from_pretrained('facebook/bart-large-cnn')
+                model = AutoModelForSeq2SeqLM.from_pretrained('facebook/bart-large-cnn')
+                inputs = tokenizer(text[:1024], return_tensors='pt', truncation=True)
+                summary_ids = model.generate(
+                    inputs['input_ids'],
+                    max_length=130,
+                    min_length=30,
+                    no_repeat_ngram_size=3,
+                    early_stopping=True
+                )
+                summary = tokenizer.decode(summary_ids[0], skip_special_tokens=True)
+                print(f"[INFO] Fallback summarization succeeded")
+            except Exception as fallback_err:
+                print(f"[ERROR] Fallback summarization also failed: {fallback_err}")
+                summary = f"[Summary unavailable]"
 
         # Step 6: Trigram Model
         global trigram_model
@@ -98,6 +122,147 @@ def live_sentiment():
         return jsonify({'sentiment': 'Neutral', 'error': str(e)})
 
 
+# ─── Voice Integration API ───────────────────────────────────
+@app.route('/api/transcribe', methods=['POST'])
+def transcribe_audio():
+    """Convert speech from uploaded audio file to text."""
+    try:
+        # Check if audio file is provided
+        if 'audio' not in request.files:
+            return jsonify({'error': 'No audio file provided'}), 400
+        
+        audio_file = request.files['audio']
+        
+        if audio_file.filename == '':
+            return jsonify({'error': 'No audio file selected'}), 400
+        
+        # Save uploaded file temporarily
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.wav') as tmp:
+            audio_file.save(tmp.name)
+            temp_path = tmp.name
+        
+        try:
+            # Convert speech to text
+            transcribed_text = speech_to_text(temp_path)
+            
+            if not transcribed_text:
+                return jsonify({'error': 'Failed to transcribe audio'}), 500
+            
+            return jsonify({
+                'text': transcribed_text,
+                'status': 'success'
+            })
+        finally:
+            # Clean up temporary file
+            if os.path.exists(temp_path):
+                os.remove(temp_path)
+    
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/transcribe-and-analyze', methods=['POST'])
+def transcribe_and_analyze():
+    """Transcribe audio and run full NLP pipeline in one call."""
+    try:
+        # Check if audio file is provided
+        if 'audio' not in request.files:
+            return jsonify({'error': 'No audio file provided'}), 400
+        
+        audio_file = request.files['audio']
+        
+        if audio_file.filename == '':
+            return jsonify({'error': 'No audio file selected'}), 400
+        
+        # Save uploaded file temporarily
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.wav') as tmp:
+            audio_file.save(tmp.name)
+            temp_path = tmp.name
+        
+        try:
+            # Step 1: Convert speech to text
+            transcribed_text = speech_to_text(temp_path)
+            
+            if not transcribed_text:
+                return jsonify({'error': 'Failed to transcribe audio'}), 500
+            
+            # Step 2: Run through NLP pipeline
+            cleaned = clean_and_normalize(transcribed_text)
+            preprocessed_tokens = preprocess_text(cleaned)
+            corrected_tokens = spell_correct_text(preprocessed_tokens)
+            corrected_text = " ".join(corrected_tokens)
+            sentiment = analyze_sentiment(transcribed_text)
+            summary = generate_summary(transcribed_text)
+            
+            # Step 3: Trigram Model
+            global trigram_model
+            trigram_model = TrigramModel()
+            trigram_model.train(corrected_tokens)
+            
+            c_w1, c_w2 = "<s>", "<s>"
+            if len(corrected_tokens) >= 2:
+                c_w1, c_w2 = corrected_tokens[-2], corrected_tokens[-1]
+            
+            predictions = trigram_model.generate_predictions(c_w1, c_w2, num_predictions=5)
+            predictions_list = [{'word': w, 'probability': round(p, 6)} for w, p in predictions]
+            
+            # Step 4: Perplexity
+            perplexity = compute_perplexity(trigram_model, corrected_tokens)
+            
+            return jsonify({
+                'original_text': transcribed_text,
+                'cleaned_text': cleaned,
+                'corrected_text': corrected_text,
+                'preprocessed_tokens': preprocessed_tokens,
+                'corrected_tokens': corrected_tokens,
+                'sentiment': sentiment,
+                'summary': summary,
+                'context_words': [c_w1, c_w2],
+                'predictions': predictions_list,
+                'perplexity': round(perplexity, 4),
+                'status': 'success'
+            })
+        finally:
+            # Clean up temporary file
+            if os.path.exists(temp_path):
+                os.remove(temp_path)
+    
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/synthesize', methods=['POST'])
+def synthesize_speech():
+    """Convert text to speech."""
+    try:
+        data = request.get_json()
+        text = data.get('text', '').strip()
+        lang = data.get('lang', 'en')
+        
+        if not text:
+            return jsonify({'error': 'No text provided'}), 400
+        
+        # Generate audio file
+        output_file = tempfile.NamedTemporaryFile(delete=False, suffix='.mp3').name
+        result = text_to_speech(text, lang=lang, output_file=output_file)
+        
+        if result and os.path.exists(result):
+            # Return audio file info
+            return jsonify({
+                'status': 'success',
+                'audio_file': result,
+                'text': text
+            })
+        else:
+            return jsonify({'error': 'Failed to generate speech'}), 500
+    
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+
 @app.route('/api/summarize', methods=['POST'])
 def standalone_summarize():
     """Standalone text summarization endpoint."""
@@ -111,7 +276,30 @@ def standalone_summarize():
         if len(text) < 50:
             return jsonify({'error': 'Text is too short to summarize. Please provide at least 50 characters.'}), 400
 
-        summary = generate_summary(text)
+        summary = "Unable to summarize"
+        try:
+            summary = generate_summary(text)
+        except Exception as gen_err:
+            print(f"[WARN] generate_summary failed: {gen_err}")
+            # Fallback to direct model
+            try:
+                from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+                tokenizer = AutoTokenizer.from_pretrained('facebook/bart-large-cnn')
+                model = AutoModelForSeq2SeqLM.from_pretrained('facebook/bart-large-cnn')
+                inputs = tokenizer(text[:1024], return_tensors='pt', truncation=True)
+                summary_ids = model.generate(
+                    inputs['input_ids'],
+                    max_length=130,
+                    min_length=30,
+                    no_repeat_ngram_size=3,
+                    early_stopping=True
+                )
+                summary = tokenizer.decode(summary_ids[0], skip_special_tokens=True)
+                print(f"[INFO] Fallback summarization succeeded")
+            except Exception as fallback_err:
+                print(f"[ERROR] Fallback summarization failed: {fallback_err}")
+                return jsonify({'error': f'Summarization failed: {str(fallback_err)[:100]}'}), 500
+
         word_count_original = len(text.split())
         word_count_summary = len(summary.split())
         compression = round((1 - word_count_summary / word_count_original) * 100, 1) if word_count_original > 0 else 0

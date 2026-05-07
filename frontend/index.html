@@ -365,6 +365,7 @@
                             <span class="input-filename">input.txt</span>
                         </div>
                         <div class="input-actions">
+                            <button class="btn-small btn-mic" id="btn-mic" title="Record voice input">🎤 Voice</button>
                             <button class="btn-small btn-demo" id="btn-demo">✨ Load Demo</button>
                             <button class="btn-small btn-clear" id="btn-clear">✕ Clear</button>
                         </div>
@@ -466,7 +467,10 @@
                                     <span class="result-card-icon">✂️</span>
                                     <h3>Executive Summary</h3>
                                 </div>
-                                <button class="btn-icon-only" id="btn-copy-summary" title="Copy to clipboard">📋</button>
+                                <div class="result-actions">
+                                    <button class="btn-icon-only" id="btn-speak-summary" title="Read summary aloud">🔊</button>
+                                    <button class="btn-icon-only" id="btn-copy-summary" title="Copy to clipboard">📋</button>
+                                </div>
                             </div>
                             <p class="summary-text" id="result-summary">—</p>
                             <p class="result-explain">
@@ -634,6 +638,49 @@
             </div>
         </div>
     </footer>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- VOICE RECORDER MODAL -->
+    <!-- ═══════════════════════════════════════════ -->
+    <div class="voice-recorder-modal" id="voice-recorder-modal" style="display: none;">
+        <div class="voice-recorder-backdrop"></div>
+        <div class="voice-recorder-content">
+            <div class="voice-recorder-header">
+                <h2>🎤 Voice Recorder</h2>
+                <button class="voice-recorder-close" id="voice-recorder-close">✕</button>
+            </div>
+            <div class="voice-recorder-body">
+                <div class="voice-status" id="voice-status">
+                    <span class="status-icon">🎙️</span>
+                    <span class="status-text">Ready to record</span>
+                </div>
+                <div class="voice-waveform" id="voice-waveform">
+                    <div class="waveform-bar"></div>
+                    <div class="waveform-bar"></div>
+                    <div class="waveform-bar"></div>
+                    <div class="waveform-bar"></div>
+                    <div class="waveform-bar"></div>
+                </div>
+                <div class="voice-controls">
+                    <button class="btn btn-primary" id="btn-start-recording">
+                        <span class="control-icon">⏺️</span> Start Recording
+                    </button>
+                    <button class="btn btn-ghost" id="btn-stop-recording" style="display: none;">
+                        <span class="control-icon">⏹️</span> Stop Recording
+                    </button>
+                </div>
+                <div class="voice-timer" id="voice-timer" style="display: none;">
+                    <span>Recording: <span class="timer-value">0:00</span></span>
+                </div>
+            </div>
+            <div class="voice-recorder-footer">
+                <button class="btn btn-ghost" id="voice-recorder-cancel">Cancel</button>
+                <button class="btn btn-primary" id="btn-use-recording" style="display: none;">
+                    <span class="control-icon">✓</span> Use Recording
+                </button>
+            </div>
+        </div>
+    </div>
 
     <script src="app.js"></script>
 </body>
