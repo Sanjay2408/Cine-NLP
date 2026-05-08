@@ -13,3 +13,10 @@ seaborn
 requests
 huggingface-hub
 fsspec
+flask
+flask-cors
+python-multipart
+pyttsx3
+sounddevice
+openai
+python-dotenv

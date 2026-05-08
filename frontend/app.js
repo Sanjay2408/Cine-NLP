@@ -10,6 +10,7 @@ const DEMO_TEXT = `I absolootely luved the mvie! It was an amazeing exprince wit
 const pipelineInput   = document.getElementById('pipeline-input');
 const btnDemo         = document.getElementById('btn-demo');
 const btnClear        = document.getElementById('btn-clear');
+const btnMic          = document.getElementById('btn-mic');
 const btnRun          = document.getElementById('btn-run');
 const btnRunDefault   = document.querySelector('.btn-run-default');
 const btnRunLoading   = document.querySelector('.btn-run-loading');
@@ -20,6 +21,18 @@ const resultsArea     = document.getElementById('results-area');
 const navbar          = document.getElementById('navbar');
 const hamburger       = document.getElementById('nav-hamburger');
 const mobileMenu      = document.getElementById('mobile-menu');
+
+// Voice Recorder Elements
+const voiceRecorderModal   = document.getElementById('voice-recorder-modal');
+const voiceRecorderBackdrop = document.querySelector('.voice-recorder-backdrop');
+const voiceRecorderClose   = document.getElementById('voice-recorder-close');
+const btnStartRecording    = document.getElementById('btn-start-recording');
+const btnStopRecording     = document.getElementById('btn-stop-recording');
+const btnUseRecording      = document.getElementById('btn-use-recording');
+const voiceRecorderCancel  = document.getElementById('voice-recorder-cancel');
+const voiceStatus          = document.getElementById('voice-status');
+const voiceTimer           = document.getElementById('voice-timer');
+const voiceWaveform        = document.getElementById('voice-waveform');
 
 // Movie Search Elements
 const tmdbKeyInput     = document.getElementById('tmdb-api-key');
@@ -574,6 +587,205 @@ function initUtilityActions() {
             }, 1000);
         });
     };
+
+    // Text-to-Speech button
+    const btnSpeakSummary = document.getElementById('btn-speak-summary');
+    let currentUtterance = null;
+
+    if (btnSpeakSummary) {
+        btnSpeakSummary.addEventListener('click', () => {
+            const summary = document.getElementById('result-summary').textContent;
+            if (summary === '—') return;
+
+            // If already speaking, stop
+            if (currentUtterance && window.speechSynthesis.speaking) {
+                window.speechSynthesis.cancel();
+                btnSpeakSummary.textContent = '🔊';
+                return;
+            }
+
+            // Speak
+            currentUtterance = new SpeechSynthesisUtterance(summary);
+            currentUtterance.rate = 1;
+            currentUtterance.pitch = 1;
+            currentUtterance.volume = 1;
+
+            currentUtterance.onstart = () => {
+                btnSpeakSummary.textContent = '⏸️';
+            };
+
+            currentUtterance.onend = () => {
+                btnSpeakSummary.textContent = '🔊';
+            };
+
+            window.speechSynthesis.speak(currentUtterance);
+        });
+    }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  VOICE RECORDER
+// ═══════════════════════════════════════════════════════════
+let mediaRecorder = null;
+let audioChunks = [];
+let recordingStartTime = null;
+let timerInterval = null;
+
+function initVoiceRecorder() {
+    // Open recorder modal
+    btnMic.addEventListener('click', () => {
+        voiceRecorderModal.style.display = 'flex';
+        audioChunks = [];
+        resetRecorderUI();
+    });
+
+    // Close modal
+    voiceRecorderClose.addEventListener('click', () => {
+        closeRecorderModal();
+    });
+
+    voiceRecorderBackdrop.addEventListener('click', () => {
+        closeRecorderModal();
+    });
+
+    voiceRecorderCancel.addEventListener('click', () => {
+        closeRecorderModal();
+    });
+
+    // Start recording
+    btnStartRecording.addEventListener('click', async () => {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(stream);
+            audioChunks = [];
+
+            mediaRecorder.ondataavailable = (e) => {
+                audioChunks.push(e.data);
+            };
+
+            mediaRecorder.onstart = () => {
+                recordingStartTime = Date.now();
+                btnStartRecording.style.display = 'none';
+                btnStopRecording.style.display = 'block';
+                voiceStatus.classList.add('recording');
+                voiceStatus.querySelector('.status-text').textContent = 'Recording in progress...';
+                voiceTimer.style.display = 'block';
+                voiceRecorderModal.classList.add('recording');
+                startTimer();
+            };
+
+            mediaRecorder.start();
+        } catch (err) {
+            alert(`Microphone Error: ${err.message}\n\nPlease allow microphone access and try again.`);
+        }
+    });
+
+    // Stop recording
+    btnStopRecording.addEventListener('click', () => {
+        if (mediaRecorder) {
+            mediaRecorder.stop();
+            mediaRecorder.onstop = () => {
+                btnStartRecording.style.display = 'block';
+                btnStopRecording.style.display = 'none';
+                btnUseRecording.style.display = 'block';
+                voiceStatus.classList.remove('recording');
+                voiceStatus.querySelector('.status-text').textContent = 'Recording saved ✓';
+                voiceTimer.style.display = 'none';
+                voiceRecorderModal.classList.remove('recording');
+                stopTimer();
+                
+                // Stop all audio tracks
+                mediaRecorder.stream.getTracks().forEach(track => track.stop());
+            };
+        }
+    });
+
+    // Use recording
+    btnUseRecording.addEventListener('click', async () => {
+        if (audioChunks.length === 0) return;
+
+        const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+        const formData = new FormData();
+        formData.append('audio', audioBlob, 'recording.wav');
+
+        // Show processing state
+        btnUseRecording.disabled = true;
+        btnUseRecording.textContent = '⏳ Transcribing...';
+        voiceStatus.querySelector('.status-text').textContent = 'Transcribing audio...';
+
+        try {
+            const resp = await fetch(`${API_BASE}/api/transcribe`, {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!resp.ok) {
+                const err = await resp.json();
+                throw new Error(err.error || 'Transcription failed');
+            }
+
+            const data = await resp.json();
+
+            if (data.text) {
+                // Insert transcribed text into input
+                pipelineInput.value = data.text;
+                pipelineInput.dispatchEvent(new Event('input'));
+
+                // Close modal
+                closeRecorderModal();
+
+                // Scroll to input
+                setTimeout(() => {
+                    pipelineInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 100);
+            } else {
+                throw new Error('No text returned from transcription');
+            }
+        } catch (err) {
+            alert(`Transcription Error: ${err.message}`);
+        } finally {
+            btnUseRecording.disabled = false;
+            btnUseRecording.textContent = '✓ Use Recording';
+        }
+    });
+}
+
+function closeRecorderModal() {
+    voiceRecorderModal.style.display = 'none';
+    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+        mediaRecorder.stop();
+        mediaRecorder.stream.getTracks().forEach(track => track.stop());
+    }
+    stopTimer();
+    audioChunks = [];
+}
+
+function resetRecorderUI() {
+    btnStartRecording.style.display = 'block';
+    btnStopRecording.style.display = 'none';
+    btnUseRecording.style.display = 'none';
+    voiceStatus.classList.remove('recording');
+    voiceStatus.querySelector('.status-text').textContent = 'Ready to record';
+    voiceTimer.style.display = 'none';
+    voiceTimer.querySelector('.timer-value').textContent = '0:00';
+    stopTimer();
+}
+
+function startTimer() {
+    timerInterval = setInterval(() => {
+        const elapsed = Math.floor((Date.now() - recordingStartTime) / 1000);
+        const minutes = Math.floor(elapsed / 60);
+        const seconds = elapsed % 60;
+        voiceTimer.querySelector('.timer-value').textContent = 
+            `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    }, 100);
+}
+
+function stopTimer() {
+    if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+    }
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -589,5 +801,6 @@ document.addEventListener('DOMContentLoaded', () => {
     initSummarizer();
     initMovieSearch();
     initUtilityActions();
+    initVoiceRecorder();
     initSmoothScroll();
 });
