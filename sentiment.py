@@ -1,4 +1,8 @@
 import nltk
+import warnings
+
+# Suppress Security Violation [pathsec.ZipFile] warnings from NLTK in Python 3.12+ (Windows Store version)
+warnings.filterwarnings("ignore", category=RuntimeWarning, message=r"Security Violation \[pathsec.ZipFile\]")
 
 try:
     nltk.data.find('sentiment/vader_lexicon.zip')

@@ -2011,6 +2011,26 @@ body {
     padding: var(--space-xl);
     text-align: center;
 }
+.api-key-config {
+    margin-bottom: var(--space-xl);
+    text-align: left;
+}
+.api-key-config .movie-input {
+    width: 100%;
+    margin-bottom: 8px;
+}
+.api-hint {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-left: 4px;
+}
+.api-hint a {
+    color: var(--accent-gold);
+    text-decoration: none;
+}
+.api-hint a:hover {
+    text-decoration: underline;
+}
 
 .voice-status {
     display: flex;

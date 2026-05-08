@@ -379,11 +379,18 @@ function initSmoothScroll() {
 //  MOVIE SEARCH LOGIC
 // ═══════════════════════════════════════════════════════════
 function initMovieSearch() {
+    // Load saved TMDB key
+    const savedTmdbKey = localStorage.getItem('tmdb_api_key');
+    if (savedTmdbKey) tmdbKeyInput.value = savedTmdbKey;
+
     btnSearchMovie.addEventListener('click', async () => {
         const query = movieQueryInput.value.trim();
         const apiKey = tmdbKeyInput.value.trim();
         
         if (!query) return;
+        
+        // Save key for next time
+        if (apiKey) localStorage.setItem('tmdb_api_key', apiKey);
         
         btnSearchMovie.classList.add('loading');
         searchBtnText.style.display = 'none';
@@ -632,6 +639,11 @@ let recordingStartTime = null;
 let timerInterval = null;
 
 function initVoiceRecorder() {
+    // Load saved Groq key
+    const groqKeyInput = document.getElementById('groq-api-key');
+    const savedGroqKey = localStorage.getItem('groq_api_key');
+    if (savedGroqKey && groqKeyInput) groqKeyInput.value = savedGroqKey;
+
     // Open recorder modal
     btnMic.addEventListener('click', () => {
         voiceRecorderModal.style.display = 'flex';
@@ -707,6 +719,14 @@ function initVoiceRecorder() {
         const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
         const formData = new FormData();
         formData.append('audio', audioBlob, 'recording.wav');
+        
+        // Add Groq API Key from frontend
+        const groqKeyInput = document.getElementById('groq-api-key');
+        const groqKey = groqKeyInput.value.trim();
+        if (groqKey) {
+            formData.append('groq_api_key', groqKey);
+            localStorage.setItem('groq_api_key', groqKey);
+        }
 
         // Show processing state
         btnUseRecording.disabled = true;

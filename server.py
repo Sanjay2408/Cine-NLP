@@ -21,8 +21,17 @@ from voice_integration import speech_to_text, text_to_speech
 app = Flask(__name__, static_folder=None)
 CORS(app)
 
-# Global trigram model instance
-trigram_model = TrigramModel()
+
+# ─── System API ──────────────────────────────────────────────
+@app.route('/health', methods=['GET'])
+def health_check():
+    """System health verification."""
+    return jsonify({
+        'status': 'healthy',
+        'version': '1.1.0',
+        'nlp_loaded': True,
+        'environment': os.getenv('FLASK_ENV', 'development')
+    })
 
 
 # ─── NLP Pipeline API ────────────────────────────────────────
@@ -31,8 +40,10 @@ def run_pipeline():
     """Run the full NLP pipeline on input text."""
     try:
         data = request.get_json()
+        if not data:
+            return jsonify({'error': 'Invalid JSON body'}), 400
+            
         text = data.get('text', '').strip()
-
         if not text:
             return jsonify({'error': 'No text provided'}), 400
 
@@ -46,49 +57,31 @@ def run_pipeline():
         corrected_tokens = spell_correct_text(preprocessed_tokens)
         corrected_text = " ".join(corrected_tokens)
 
-        # Step 4: Sentiment Analysis
-        sentiment = analyze_sentiment(text)
+        # Steps 4 & 5: Sentiment & Summarization in parallel
+        from concurrent.futures import ThreadPoolExecutor
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            sentiment_future = executor.submit(analyze_sentiment, text)
+            summary_future = executor.submit(generate_summary, text)
+            
+            sentiment = sentiment_future.result()
+            summary = summary_future.result()
 
-        # Step 5: Summarization (with robust fallback)
-        summary = "Unable to generate summary"
-        try:
-            summary = generate_summary(text)
-        except Exception as gen_err:
-            print(f"[WARN] generate_summary failed: {gen_err}")
-            # Try direct model generation as fallback
-            try:
-                from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
-                tokenizer = AutoTokenizer.from_pretrained('facebook/bart-large-cnn')
-                model = AutoModelForSeq2SeqLM.from_pretrained('facebook/bart-large-cnn')
-                inputs = tokenizer(text[:1024], return_tensors='pt', truncation=True)
-                summary_ids = model.generate(
-                    inputs['input_ids'],
-                    max_length=130,
-                    min_length=30,
-                    no_repeat_ngram_size=3,
-                    early_stopping=True
-                )
-                summary = tokenizer.decode(summary_ids[0], skip_special_tokens=True)
-                print(f"[INFO] Fallback summarization succeeded")
-            except Exception as fallback_err:
-                print(f"[ERROR] Fallback summarization also failed: {fallback_err}")
-                summary = f"[Summary unavailable]"
-
-        # Step 6: Trigram Model
-        global trigram_model
-        trigram_model = TrigramModel()
-        trigram_model.train(corrected_tokens)
+        # Step 6: Trigram Model (Local instance for thread-safety)
+        model = TrigramModel()
+        model.train(corrected_tokens)
 
         # Context words for prediction
         c_w1, c_w2 = "<s>", "<s>"
         if len(corrected_tokens) >= 2:
             c_w1, c_w2 = corrected_tokens[-2], corrected_tokens[-1]
+        elif len(corrected_tokens) == 1:
+            c_w2 = corrected_tokens[0]
 
-        predictions = trigram_model.generate_predictions(c_w1, c_w2, num_predictions=5)
+        predictions = model.generate_predictions(c_w1, c_w2, num_predictions=5)
         predictions_list = [{'word': w, 'probability': round(p, 6)} for w, p in predictions]
 
         # Step 7: Perplexity
-        perplexity = compute_perplexity(trigram_model, corrected_tokens)
+        perplexity = compute_perplexity(model, corrected_tokens)
 
         return jsonify({
             'original_text': text,
@@ -100,12 +93,13 @@ def run_pipeline():
             'summary': summary,
             'context_words': [c_w1, c_w2],
             'predictions': predictions_list,
-            'perplexity': round(perplexity, 4)
+            'perplexity': round(perplexity, 4),
+            'status': 'success'
         })
 
     except Exception as e:
-        traceback.print_exc()
-        return jsonify({'error': str(e)}), 500
+        app.logger.error(f"Pipeline Error: {traceback.format_exc()}")
+        return jsonify({'error': f"Processing failed: {str(e)}"}), 500
 
 
 @app.route('/api/sentiment', methods=['POST'])
@@ -142,8 +136,11 @@ def transcribe_audio():
             temp_path = tmp.name
         
         try:
+            # Get API key from request
+            groq_api_key = request.form.get('groq_api_key') or request.headers.get('X-Groq-API-Key')
+            
             # Convert speech to text
-            transcribed_text = speech_to_text(temp_path)
+            transcribed_text = speech_to_text(temp_path, api_key=groq_api_key)
             
             if not transcribed_text:
                 return jsonify({'error': 'Failed to transcribe audio'}), 500
@@ -181,8 +178,11 @@ def transcribe_and_analyze():
             temp_path = tmp.name
         
         try:
+            # Get API key from request
+            groq_api_key = request.form.get('groq_api_key') or request.headers.get('X-Groq-API-Key')
+            
             # Step 1: Convert speech to text
-            transcribed_text = speech_to_text(temp_path)
+            transcribed_text = speech_to_text(temp_path, api_key=groq_api_key)
             
             if not transcribed_text:
                 return jsonify({'error': 'Failed to transcribe audio'}), 500

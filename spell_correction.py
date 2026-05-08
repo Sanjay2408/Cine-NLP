@@ -46,43 +46,56 @@ def levenshtein_distance(s1, s2):
                            
     return dp[m][n]
 
+_CORRECTION_CACHE = {}
+
 def correct_word(word):
     """
     Replace incorrect word with closest match from dictionary.
     """
     if not english_vocab:
-        return word # Fallback if dictionary failed to load
+        return word 
         
     # Only try to correct alphabetic tokens
     if not word.isalpha():
         return word
         
-    # If word is valid, return it without modification
+    # If word is valid, return it 
     if word in english_vocab:
         return word
         
-    # Optimization: Filter candidate words by length to avoid O(N*M) over huge N
-    # We only consider words that have a length difference of at most 2
+    # Check cache
+    if word in _CORRECTION_CACHE:
+        return _CORRECTION_CACHE[word]
+        
+    # Optimization: Filter candidate words by length and first letter
     target_len = len(word)
-    candidate_words = [w for w in english_vocab if abs(len(w) - target_len) <= 2]
     
-    min_dist = float('inf')
-    closest_match = word
-    
-    for valid_word in candidate_words:
-        # Early skip if the length difference itself is >= current min_dist
-        if abs(target_len - len(valid_word)) >= min_dist:
-            continue
-            
-        dist = levenshtein_distance(word, valid_word)
-        if dist < min_dist:
-            min_dist = dist
-            closest_match = valid_word
-            
-        # Early stopping if distance is 1 (the lowest possible edit cost for a misspelled word)
-        if min_dist == 1: 
+    # Heuristic: Most misspellings share the first letter or have length difference <= 1
+    # We expand the search gradually
+    for max_len_diff in [1, 2]:
+        candidates = [w for w in english_vocab if abs(len(w) - target_len) <= max_len_diff]
+        
+        # Further filter: many misspellings preserve the first letter
+        if target_len > 3:
+            first_letter_matches = [w for w in candidates if w[0] == word[0]]
+            if first_letter_matches:
+                candidates = first_letter_matches
+
+        min_dist = float('inf')
+        closest_match = word
+        
+        for valid_word in candidates:
+            dist = levenshtein_distance(word, valid_word)
+            if dist < min_dist:
+                min_dist = dist
+                closest_match = valid_word
+            if min_dist == 1: 
+                break
+        
+        if min_dist <= max_len_diff:
             break
-            
+
+    _CORRECTION_CACHE[word] = closest_match
     return closest_match
 
 def spell_correct_text(tokens):

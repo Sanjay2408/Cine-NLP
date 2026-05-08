@@ -1,8 +1,12 @@
 import re
 import spacy
 import nltk
+import warnings
 import subprocess
 import sys
+
+# Suppress Security Violation [pathsec.ZipFile] warnings from NLTK in Python 3.12+ (Windows Store version)
+warnings.filterwarnings("ignore", category=RuntimeWarning, message=r"Security Violation \[pathsec.ZipFile\]")
 
 # Ensure required NLTK resources are available
 def download_nltk_resources():

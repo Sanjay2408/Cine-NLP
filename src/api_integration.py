@@ -13,6 +13,8 @@ class TMDBAPI:
         if not self.api_key:
             return {"Error": "No TMDB API Key provided."}
         
+        url = f"{self.base_url}/movie/{movie_id}"
+        params = {"api_key": self.api_key}
         headers = {"User-Agent": "Cine-NLP/1.0", "Accept": "application/json"}
         
         for attempt in range(3):
